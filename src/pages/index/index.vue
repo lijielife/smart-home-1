@@ -1,6 +1,9 @@
 <template>
-  <div class="container">
-    <button @click="initChart">初始化</button>
+  <div class="con">
+    <view class="userinfo">
+      <img :src="userInfo.avatarUrl" /> {{userInfo.nickName}}
+    </view>
+    <button @click="initChart" style="margin-bottom: 20px;">查看实时数据</button>
     <div class="wrap">
       <mpvue-echarts lazyLoad :echarts="echarts" :onInit="handleInit" ref="echarts" />
     </div>
@@ -8,7 +11,7 @@
 </template>
 
 <script>
-import * as echarts from 'echarts'
+import * as echarts from 'echarts/dist/echarts.simple.min'
 import mpvueEcharts from 'mpvue-echarts'
 import Fly from 'flyio/dist/npm/wx'
 // import Promise from 'bluebird'
@@ -37,13 +40,14 @@ export default {
           wx.getUserInfo({
             success: (res) => {
               this.userInfo = res.userInfo
+              console.log(res.userInfo)
             }
           })
         }
       })
     },
     initChart () {
-      this.getData('http://localhost:3000/api/getData')
+      this.getData('https://smarthome.swpuiot.com/api/getdata')
     },
     handleInit (canvas, width, height) {
       chart = echarts.init(canvas, null, { width, height })
@@ -58,6 +62,9 @@ export default {
           console.log(res)
           if (data.success) {
             console.log(data.data)
+            this.timeArr = []
+            this.tempArr = []
+            this.humArr = []
             data.data.forEach(item => {
               const date = new Date(item.time)
               this.timeArr.push(`${date.getHours()}:${date.getMinutes()}`)
@@ -114,8 +121,24 @@ export default {
 </script>
 
 <style scoped>
+.con {
+  padding: 10px 0;
+}
 .wrap {
   width: 100%;
   height: 300px;
+}
+.userinfo {
+  width: 100%;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.userinfo img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  margin-right: 20px;
 }
 </style>
